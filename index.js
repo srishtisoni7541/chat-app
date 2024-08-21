@@ -37,6 +37,10 @@ app.get('/', function (req, res) {
   res.render('login');
 });
 
+app.get('/login',function(req,res){
+  res.render('chat');
+})
+
 // Handle login
 app.post('/login', async function (req, res) {
   const { name, email, password } = req.body;
