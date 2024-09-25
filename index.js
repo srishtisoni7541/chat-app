@@ -13,6 +13,9 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const connectflash = require('connect-flash');
 const expressSession = require('express-session');
+const path = require('path');
+
+app.set('views', path.join(__dirname, 'views'));
 
 // Middleware to parse JSON and form data
 app.use(express.json());
