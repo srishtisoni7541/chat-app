@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // Connecting to the MongoDB database
-mongoose.connect("mongodb://127.0.0.1:27017/letschat", {
+mongoose.connect("mongodb+srv://srishtisoni7541:qPlvIeoJK798VEVN@cluster1.iy4c6.mongodb.net/chatapp", {
     useNewUrlParser: true, 
     useUnifiedTopology: true
 }).then(() => {
