@@ -13,7 +13,7 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const connectflash = require('connect-flash');
 const expressSession = require('express-session');
-const MongoStore = require('connect-mongo')
+const MongoStore = require('connect-mongo');
 const path = require('path');
 
 app.set('views', path.join(__dirname, 'views'));
