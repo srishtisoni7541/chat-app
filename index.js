@@ -13,6 +13,7 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const connectflash = require('connect-flash');
 const expressSession = require('express-session');
+const MongoStore = require('c')
 const path = require('path');
 
 app.set('views', path.join(__dirname, 'views'));
@@ -29,6 +30,7 @@ app.use(expressSession({
   secret: process.env.JWT_SECRET, // Use secret from .env file
   resave: false, // Forces the session to be saved back to the session store, even if the session was never modified during the request.
   saveUninitialized: true, // Forces a session that is "uninitialized" to be saved to the store.
+  store: MongoStore.create({ mongoUrl: 'mongodb+srv://srishtisoni7541:qPlvIeoJK798VEVN@cluster1.iy4c6.mongodb.net/chatapp' }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day in milliseconds
   }
