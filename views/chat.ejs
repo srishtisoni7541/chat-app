@@ -114,22 +114,40 @@
     
       // Set name handling
       setbtn.addEventListener('click', function () {
+        // Simplified approach without FormData
+        const name = inputname.value.trim();
+        const file = fileinput.files[0];
+        
+        // Log the data we're about to send
+        console.log('Name:', name);
+        console.log('File:', file);
+
+        // Prepare the data to send
         const formData = new FormData();
-        formData.append('name', inputname.value.trim());
-        formData.append('dp', fileinput.files[0]);
-    
-        fetch('/setprofile', {
-          method: 'POST',
-          body: formData,
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              socket.emit('nameset', data);
-              overlay.style.display = 'none'; // Hide the overlay (login card) after setting the name
+    formData.append('name', name);
+    if (file) {
+        formData.append('file', file);
+    }
+
+    // Send the data using fetch API
+    fetch('/setprofile', {
+        method: 'POST',
+        body: formData, // FormData handles the multipart/form-data automatically
+    }).then(response => response.json())
+        .then(result => {
+            console.log('Server response:', result);
+            if (result.success) {
+                socket.emit('nameset', { name: result.name, image: result.image });
+                overlay.style.display = 'none';
+            } else {
+                console.error('Error setting profile:', result.message);
             }
-          })
-          .catch(error => console.error('Error:', error));
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+
+       
       });
     
       socket.on('connect', function () {
