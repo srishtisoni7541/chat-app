@@ -2,9 +2,7 @@
 const mongoose = require('mongoose');
 
 // Connecting to the MongoDB database
-mongoose.connect("mongodb+srv://srishtisoni7541:qPlvIeoJK798VEVN@cluster1.iy4c6.mongodb.net/chatapp", {
-    useNewUrlParser: true, 
-    useUnifiedTopology: true
+mongoose.connect(process.env.MONGO_URI, {
 }).then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {
@@ -17,11 +15,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true, // Ensure unique email
-    },
+        email: {
+          type: String,
+          required: true,
+          unique: true
+        },
     password: {
         type: String,
         required: true

@@ -62,127 +62,128 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"
     integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
     crossorigin="anonymous"></script>
-  <script>
-    const socket = io();
-    let timer;
-    const input = document.querySelector('.message-input');
-    const sendbtn = document.querySelector('.send-button');
-    const messagebox = document.querySelector('.messagebox');
-    const overlay = document.querySelector('.overlay');
-    const inputname = document.querySelector('.inputname');
-    const setbtn = document.querySelector('.setbtn');
-    const onlineusers = document.querySelector('.onlineusers');
-    const fileinput = document.querySelector('.fileinput');
-    const dpImg = document.querySelector('.dp-img');
-    const logoutbtn = document.querySelector('.logoutbtn');
-    const logoutcard = document.querySelector('.logoutcard');
-    const btnNo = document.querySelector('.btnNo');
-
-
-
-    let imageUrl = '';
-
-    logoutbtn.addEventListener('click', function () {
-      logoutcard.style.display = 'block';
-
-    })
-    btnNo.addEventListener('click', function () {
-      logoutcard.style.display = 'none';
-    })
-
-
-
-    fileinput.addEventListener('change', function () {
-      const file = fileinput.files[0];
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        imageUrl = e.target.result;
-        dpImg.src = imageUrl;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    input.addEventListener('input', function () {
-      socket.emit('typing');
-    });
-
-    socket.on('typing', function (name) {
-      document.querySelector('.typing').textContent = `${name} is typing...`;
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        document.querySelector('.typing').textContent = '';
-      }, 1200);
-    });
-
-    socket.on('namesetdone', function () {
-      setbtn.addEventListener('click', function () {
-        overlay.style.display = 'none';
-        document.querySelector('.name').textContent = inputname.value.trim() + ' is chatting';
+    <script>
+      const socket = io();
+      let timer;
+      const input = document.querySelector('.message-input');
+      const sendbtn = document.querySelector('.send-button');
+      const messagebox = document.querySelector('.messagebox');
+      const overlay = document.querySelector('.overlay'); // This should refer to the login card/overlay
+      const inputname = document.querySelector('.inputname');
+      const setbtn = document.querySelector('.setbtn');
+      const onlineusers = document.querySelector('.onlineusers');
+      const fileinput = document.querySelector('.fileinput');
+      const dpImg = document.querySelector('.dp-img');
+      const logoutbtn = document.querySelector('.logoutbtn');
+      const logoutcard = document.querySelector('.logoutcard');
+      const btnNo = document.querySelector('.btnNo');
+    
+      let imageUrl = '';
+    
+      // Logout button handling
+      logoutbtn.addEventListener('click', function () {
+        logoutcard.style.display = 'block';
       });
-    });
-
-    socket.on('numberofusers', function (number) {
-      onlineusers.textContent = number;
-    });
-
-    inputname.addEventListener('input', function (e) {
-      let newvalue = '';
-      if (inputname.value.trim().length > 0) {
-        newvalue = inputname.value.replace(" ", "_");
-      } else {
-        newvalue = "";
-      }
-      inputname.value = newvalue;
-    });
-
-    setbtn.addEventListener('click', function () {
-      const formData = new FormData();
-      formData.append('name', inputname.value.trim());
-      formData.append('dp', fileinput.files[0]);
-
-      fetch('/setprofile', {
-        method: 'POST',
-        body: formData,
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            socket.emit('nameset', data);
-          }
+      btnNo.addEventListener('click', function () {
+        logoutcard.style.display = 'none';
+      });
+    
+      // File input change handler
+      fileinput.addEventListener('change', function () {
+        const file = fileinput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imageUrl = e.target.result;
+          dpImg.src = imageUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+    
+      // Typing event handling
+      input.addEventListener('input', function () {
+        socket.emit('typing');
+      });
+    
+      socket.on('typing', function (name) {
+        document.querySelector('.typing').textContent = `${name} is typing...`;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          document.querySelector('.typing').textContent = '';
+        }, 1200);
+      });
+    
+      // Set name handling
+      setbtn.addEventListener('click', function () {
+        const formData = new FormData();
+        formData.append('name', inputname.value.trim());
+        formData.append('dp', fileinput.files[0]);
+    
+        fetch('/setprofile', {
+          method: 'POST',
+          body: formData,
         })
-        .catch(error => console.error('Error:', error));
-    });
-
-    socket.on('connect', function () {
-      console.log('Connected to server');
-    });
-
-    sendbtn.addEventListener('click', function () {
-      socket.emit('message', input.value);
-      input.value = '';
-    });
-    socket.on('message', function (message) {
-      const mymsg = message.id === socket.id;
-      const formattedTime = new Date(message.time).toLocaleTimeString();
-      const messageHTML = `
-    <div class="flex ${mymsg ? 'justify-end' : 'justify-start'} items-end gap-2">
-      ${mymsg ? '' : `<img src="${message.dp}" alt="dp" class="h-10 w-10 rounded-full">`}
-      <div class="${mymsg ? 'bg-green-200' : 'bg-blue-200'} p-3 rounded-lg shadow-md max-w-[200px] break-words text-black">
-        <p class="text-sm">${message.message}</p>
-      </div>
-      ${mymsg ? `<img src="${message.dp}" alt="dp" class="h-10 w-10 rounded-full object-cover">` : ''}
-      <div class="flex flex-col items-start ${mymsg ? 'items-end' : ''}">
-        <span class="user text-xs text-gray-500">${message.name}</span>
-        <span class="user text-xs text-gray-500">${formattedTime}</span>
-      </div>
-    </div>`;
-      messagebox.innerHTML += messageHTML;
-      messagebox.scrollTop = messagebox.scrollHeight;
-    });
-
-
-
-  </script>
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              socket.emit('nameset', data);
+              overlay.style.display = 'none'; // Hide the overlay (login card) after setting the name
+            }
+          })
+          .catch(error => console.error('Error:', error));
+      });
+    
+      socket.on('connect', function () {
+        console.log('Connected to server');
+      });
+    
+      socket.on('namesetdone', function () {
+        document.querySelector('.name').textContent = inputname.value.trim() + ' is chatting';
+        overlay.style.display = 'none'; // Ensure overlay is hidden when name is set
+      });
+    
+      // Number of users online event handling
+      socket.on('numberofusers', function (number) {
+        onlineusers.textContent = number;
+      });
+    
+      // Input name field validation (removes spaces)
+      inputname.addEventListener('input', function (e) {
+        let newvalue = '';
+        if (inputname.value.trim().length > 0) {
+          newvalue = inputname.value.replace(" ", "_");
+        } else {
+          newvalue = "";
+        }
+        inputname.value = newvalue;
+      });
+    
+      // Message send handling
+      sendbtn.addEventListener('click', function () {
+        socket.emit('message', input.value);
+        input.value = '';
+      });
+    
+      // Receiving messages from server
+      socket.on('message', function (message) {
+        const mymsg = message.id === socket.id;
+        const formattedTime = new Date(message.time).toLocaleTimeString();
+        const messageHTML = `
+        <div class="flex ${mymsg ? 'justify-end' : 'justify-start'} items-end gap-2">
+          ${mymsg ? '' : `<img src="${message.dp}" alt="dp" class="h-10 w-10 rounded-full">`}
+          <div class="${mymsg ? 'bg-green-200' : 'bg-blue-200'} p-3 rounded-lg shadow-md max-w-[200px] break-words text-black">
+            <p class="text-sm">${message.message}</p>
+          </div>
+          ${mymsg ? `<img src="${message.dp}" alt="dp" class="h-10 w-10 rounded-full object-cover">` : ''}
+          <div class="flex flex-col items-start ${mymsg ? 'items-end' : ''}">
+            <span class="user text-xs text-gray-500">${message.name}</span>
+            <span class="user text-xs text-gray-500">${formattedTime}</span>
+          </div>
+        </div>`;
+        messagebox.innerHTML += messageHTML;
+        messagebox.scrollTop = messagebox.scrollHeight;
+      });
+    </script>
+    
 </body>
 
 </html>

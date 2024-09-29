@@ -30,7 +30,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware to parse JSON and form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('uploads')); // Serve static files from the "public" directory
+app.use(express.static('public')); // Serve static files from the "public" directory
 
 // Setup session store and cookies
 app.use(expressSession({
@@ -59,8 +59,19 @@ app.get('/login', (req, res) => {
 // Handle login
 app.post('/login', async (req, res) => {
   const { name, email, password } = req.body;
+
   
   try {
+
+    const existingUser = await usermodel.findOne({ email: req.body.email });
+    if (existingUser) {
+      // Handle duplicate email case
+      return res.status(400).json({ message: "Email already exists" });
+    }
+  
+
+
+
     bcrypt.genSalt(10, function(err, salt) {
       bcrypt.hash(password, salt, async function(err, hash) {
         let loginUser = await usermodel.create({
@@ -92,28 +103,39 @@ app.get('/logout', (req, res) => {
 });
 
 // Handle profile setup and upload profile picture using ImageKit
+
+
+
 app.post('/setprofile', upload.single('dp'), (req, res) => {
+  // Check if the file exists in the request
   if (!req.file) {
     return res.status(400).send({ success: false, message: 'No file uploaded' });
   }
 
+  // Read file from disk storage using the path saved by multer
+  const filePath = req.file.path;  // Path to the file saved on disk
+  const fileBuffer = fs.readFileSync(filePath); // Read file from disk
+
   // Upload the file to ImageKit
   imagekit.upload({
-    file: fs.readFileSync(req.file.path),  // Read file from disk
-    fileName: req.file.filename,           // Use original file name
-    folder: "/profiles",                   // Optional: folder name in ImageKit
-  }, function(error, result) {
+    file: fileBuffer.toString('base64'),  // Convert file buffer to base64
+    fileName: req.file.originalname,      // Use the original file name
+    folder: "/uploads",                   // Optional: folder name in ImageKit
+  }, function (error, result) {
     if (error) {
+      console.error('Image upload failed:', error);
       return res.status(500).send({ success: false, message: 'Image upload failed', error });
-    } else {
-      const imageUrl = result.url; // Get URL of the uploaded image from ImageKit
-      const name = req.body.name;
-
-      // Return success response with user name and profile image URL
-      res.send({ success: true, name, image: imageUrl });
     }
+
+    // If upload is successful, get the URL of the uploaded image
+    const imageUrl = result.url;
+    const name = req.body.name;
+
+    // Return success response with user name and profile image URL
+    res.send({ success: true, name, image: imageUrl });
   });
 });
+
 
 // Socket.io connection setup
 const userids = [];
