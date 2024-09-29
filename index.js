@@ -81,16 +81,16 @@ app.get('/logout',function(req,res){
   });
 })
 // Handle profile setup
-app.post('/setprofile', upload.single('dp'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send({ success: false, message: 'No file uploaded' });
-  }
+// app.post('/setprofile', upload.single('dp'), (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).send({ success: false, message: 'No file uploaded' });
+//   }
 
-  const imageUrl = `/uploads/${req.file.filename}`;
-  const name = req.body.name;
+//   const imageUrl = `/uploads/${req.file.filename}`;
+//   const name = req.body.name;
 
-  res.send({ success: true, name, image: imageUrl });
-});
+//   res.send({ success: true, name, image: imageUrl });
+// });
 
 // Socket.io connection
 const userids = [];
