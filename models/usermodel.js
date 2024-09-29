@@ -1,11 +1,14 @@
 
 const mongoose = require('mongoose');
 
-// Connecting to the MongoDB database
 mongoose.connect(process.env.MONGO_URI, {
-}).then(() => {
+    useNewUrlParser: true, // Use the new URL parser
+    useUnifiedTopology: true, // Use the new Server Discovery and Monitoring engine
+})
+.then(() => {
     console.log('Connected to MongoDB');
-}).catch((err) => {
+})
+.catch((err) => {
     console.error('MongoDB connection error:', err);
 });
 

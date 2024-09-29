@@ -33,7 +33,7 @@ const uploadToImageKit = (filePath, fileName) => {
     imagekit.upload({
       file: fileBuffer.toString('base64'), // Convert file to base64
       fileName,                            // Set the original file name
-      folder: "/uploads",                  // Optional: folder to store image
+      folder: "profiles",                  // Optional: folder to store image
     }, function(error, result) {
       if (error) {
         return reject(error);
@@ -54,3 +54,4 @@ const generateImageURL = (filePath) => {
     transformationPosition: "query" // Can also use "path"
   });
 };
+
